@@ -19,17 +19,18 @@ def _init_pygame() -> pygame.joystick.Joystick:
 
     if pygame.joystick.get_count() == 0:
         timeout = 30
-        print(
-            f"No controller detected. Waiting up to {timeout}s for DS4... (Ctrl-C to quit)",
-            flush=True,
-        )
         deadline = time.monotonic() + timeout
         while pygame.joystick.get_count() == 0:
-            if time.monotonic() >= deadline:
-                print("No controller found. Connect the DS4 via Bluetooth and try again.")
+            remaining = int(deadline - time.monotonic())
+            if remaining <= 0:
+                print("\rNo controller found. Connect the DS4 via Bluetooth and try again.")
                 sys.exit(1)
+            print(
+                f"\rNo controller detected. Waiting for DS4... {remaining}s  ", end="", flush=True
+            )
             pygame.event.pump()
             time.sleep(1)
+        print()  # newline after countdown
 
     joy = pygame.joystick.Joystick(0)
     joy.init()
