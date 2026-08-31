@@ -6,9 +6,15 @@ import time
 os.environ["SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS"] = "1"
 
 import pygame
+from rich.align import Align
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
 from ds4mapper.cli import run
 from ds4mapper.profiles import load_profile
+
+_console = Console()
 
 
 def _init_pygame() -> pygame.joystick.Joystick:
@@ -36,6 +42,34 @@ def _init_pygame() -> pygame.joystick.Joystick:
     joy.init()
     print(f"Connected: {joy.get_name()}")
     return joy
+
+
+def _splash(controller_name: str, profile_name: str) -> None:
+    title = Text()
+    title.append("◆ ", style="cyan")
+    title.append("DS4 MAPPER", style="bold white")
+
+    body = Text(justify="left")
+    body.append("\nDualShock 4 → Keyboard\n", style="dim")
+    body.append("\n")
+    body.append("  Controller  ", style="dim")
+    body.append(controller_name, style="cyan bold")
+    body.append("\n  Profile     ", style="dim")
+    body.append(profile_name, style="green bold")
+    body.append("\n\n")
+    body.append("  list", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("switch <name>", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("current", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("reload", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("quit", style="bold white")
+
+    content = Text.assemble(Align.center(title), body)
+    _console.print(Panel(content, padding=(1, 4), border_style="cyan", expand=False))
+    _console.print()
 
 
 def _discover(joy: pygame.joystick.Joystick) -> None:
@@ -69,9 +103,11 @@ def main() -> None:
     joy = _init_pygame()
     try:
         if args.discover:
+            _splash(joy.get_name(), "discover mode")
             _discover(joy)
         else:
             profile = load_profile(args.profile)
+            _splash(joy.get_name(), profile.name)
             run(joy, profile, args.profile)
     except KeyboardInterrupt:
         print("\nStopped.")
