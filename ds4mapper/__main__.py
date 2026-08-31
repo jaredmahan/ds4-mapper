@@ -44,90 +44,49 @@ def _init_pygame() -> pygame.joystick.Joystick:
     return joy
 
 
-# Each line is a list of (style, text) segments; all render to exactly 39 chars.
-# Border │ lands at columns 2 and 36 (0-indexed); inner content = 33 chars.
+# Each line is a list of (style, text) segments; all render to exactly 61 chars.
+# Layout: dpad(13) + gap(6) + touchpad(13) + gap(6) + face-buttons(13) = 51 inner chars.
 _ART_LINES: list[list[tuple[str, str]]] = [
-    [("dim", "      ╭──╮                   ╭──╮      ")],  # 39
-    [("dim", "    L2─┤  ├─L1            R1─┤  ├─R2   ")],  # 39
-    [("cyan", "  ╭────┴──┴─────────────────┴──┴────╮  ")],  # 39
-    [
-        ("cyan", "  │  "),
-        ("white", "╭────╮"),
-        ("cyan", "  "),
-        ("dim", "╔═══════════╗"),
-        ("cyan", "  "),
-        ("white", "╭────╮"),
-        ("cyan", "  │  "),
-    ],  # 5+6+2+13+2+6+5=39
-    [
-        ("cyan", "  │  "),
-        ("white", "│ ↑  │"),
-        ("cyan", "  "),
-        ("dim", "║ TOUCHPAD  ║"),
-        ("cyan", "  "),
-        ("yellow", "│ △  │"),
-        ("cyan", "  │  "),
-    ],  # 39
-    [
-        ("cyan", "  │  "),
-        ("white", "│←  →│"),
-        ("cyan", "  "),
-        ("dim", "╚═══════════╝"),
-        ("cyan", "  "),
-        ("red", "│ ○  │"),
-        ("cyan", "  │  "),
-    ],  # 39
-    [
-        ("cyan", "  │  "),
-        ("white", "│ ↓  │"),
-        ("cyan", "  "),
-        ("dim", " shr    opt  "),
-        ("cyan", "  "),
-        ("blue", "│ □  │"),
-        ("cyan", "  │  "),
-    ],  # 5+6+2+13+2+6+5=39
-    [
-        ("cyan", "  │  "),
-        ("white", "╰────╯"),
-        ("cyan", "  "),
-        ("dim", "╭───╮   ╭───╮"),
-        ("cyan", "  "),
-        ("green", "│ ✕  │"),
-        ("cyan", "  │  "),
-    ],  # 5+6+2+13+2+6+5=39
-    [("cyan", "  │          "), ("dim", "│LS │  │RS │"), ("cyan", "           │  ")],  # 13+12+14=39
-    [("cyan", "  │          "), ("dim", "╰───╯  ╰───╯"), ("cyan", "           │  ")],  # 39
-    [("cyan", "  ╰─────────────────────────────────╯  ")],  # 2+1+33+1+2=39
+    [("dim", "          ╭──╮                                 ╭──╮          ")],
+    [("dim", "  L2 ──────"), ("cyan", "┤  ├"), ("dim", "──── L1                   R1 ────"), ("cyan", "┤  ├"), ("dim", "──── R2  ")],
+    [("cyan", "  ╭────────┴──┴─────────────────────────────────┴──┴──────╮  ")],
+    [("cyan", "  │  "), ("white", "      ▲      "), ("cyan", "      "), ("dim", "╔═══════════╗"), ("cyan", "      "), ("yellow", "      △      "), ("cyan", "  │  ")],
+    [("cyan", "  │  "), ("white", "   ◄  ╋  ►   "), ("cyan", "  "), ("dim", "SHR"), ("cyan", " "), ("dim", "║ TOUCHPAD  ║"), ("cyan", " "), ("dim", "OPT"), ("cyan", "  "), ("cyan", "   "), ("magenta", "□"), ("cyan", "     "), ("red", "○"), ("cyan", "   "), ("cyan", "  │  ")],
+    [("cyan", "  │  "), ("white", "      ▼      "), ("cyan", "      "), ("dim", "╚═══════════╝"), ("cyan", "      "), ("blue", "      ✕      "), ("cyan", "  │  ")],
+    [("cyan", "  │  "), ("cyan", "                                                   "), ("cyan", "  │  ")],
+    [("cyan", "  │  "), ("dim", "       ╭───╮"), ("cyan", "             ⊛             "), ("dim", "╭───╮       "), ("cyan", "  │  ")],
+    [("cyan", "  │  "), ("dim", "       │ L │"), ("cyan", "                           "), ("dim", "│ R │       "), ("cyan", "  │  ")],
+    [("cyan", "  │  "), ("dim", "       ╰───╯"), ("cyan", "                           "), ("dim", "╰───╯       "), ("cyan", "  │  ")],
+    [("cyan", "  ╰──╮                                                 ╭──╯  ")],
+    [("cyan", "     ╰─────────────────────────────────────────────────╯     ")],
 ]
 
 
 def _splash(controller_name: str, profile_name: str) -> None:
-    art = Text(no_wrap=True)
+    body = Text(justify="center", no_wrap=True)
+    body.append("◆ DS4 MAPPER\n", style="bold cyan")
+    body.append("DualShock 4 → Keyboard\n\n", style="dim")
     for segments in _ART_LINES:
         for style, chunk in segments:
-            art.append(chunk, style=style)
-        art.append("\n")
+            body.append(chunk, style=style)
+        body.append("\n")
+    body.append("\n")
+    body.append("Controller  ", style="dim")
+    body.append(controller_name, style="cyan bold")
+    body.append("   Profile  ", style="dim")
+    body.append(profile_name, style="green bold")
+    body.append("\n\n")
+    body.append("list", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("switch <name>", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("current", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("reload", style="bold white")
+    body.append("  ·  ", style="dim")
+    body.append("quit", style="bold white")
 
-    info = Text(justify="center")
-    info.append("◆ DS4 MAPPER\n", style="bold cyan")
-    info.append("DualShock 4 → Keyboard\n\n", style="dim")
-    info.append("Controller  ", style="dim")
-    info.append(controller_name, style="cyan bold")
-    info.append("   Profile  ", style="dim")
-    info.append(profile_name, style="green bold")
-    info.append("\n\n")
-    info.append("list", style="bold white")
-    info.append("  ·  ", style="dim")
-    info.append("switch <name>", style="bold white")
-    info.append("  ·  ", style="dim")
-    info.append("current", style="bold white")
-    info.append("  ·  ", style="dim")
-    info.append("reload", style="bold white")
-    info.append("  ·  ", style="dim")
-    info.append("quit", style="bold white")
-
-    _console.print(Align.center(art))
-    _console.print(Panel(Align.center(info), border_style="cyan", padding=(0, 2)))
+    _console.print(Panel(Align.center(body), border_style="cyan", padding=(0, 2)))
     _console.print()
 
 

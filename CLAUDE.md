@@ -33,9 +33,11 @@ ds4-mapper [--profile NAME] [--discover]
 
 ## Splash Screen ASCII Art
 
-`_ART_LINES` in `__main__.py` is a list of 11 `[(style, text), ...]` rows. **All rows must render to exactly 39 characters.** The border `│` must sit at columns 2 and 36 (0-indexed). Use `sum(len(t) for _, t in row)` to verify any edited row before committing.
+`_ART_LINES` in `__main__.py` is a list of 12 `[(style, text), ...]` rows. **All rows must render to exactly 61 characters.** Use `sum(len(t) for _, t in row)` to verify any edited row before committing.
 
-Row structure for inner rows: `border(5) + left_widget(6) + gap(2) + center_widget(13) + gap(2) + right_widget(6) + border(5) = 39`.
+Inner row structure: `border(5) + dpad(13) + gap(6) + touchpad(13) + gap(6) + face(13) + border(5) = 61`.
+
+The art displays inside a Rich `Panel` via `_splash()`, right below the "DualShock 4 → Keyboard" subtitle.
 
 ## Dev Commands
 
