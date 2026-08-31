@@ -173,5 +173,5 @@ def run(joy: object, initial_profile: Profile, initial_stem: str = "default") ->
     finally:
         _quit.set()
         mapper.stop()
-        mapper.release_all()
         mapper.join(timeout=2)
+        mapper.release_all()
