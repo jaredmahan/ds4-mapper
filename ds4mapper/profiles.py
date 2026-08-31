@@ -6,7 +6,7 @@ from pynput.keyboard import Key
 
 from ds4mapper.keys import resolve
 
-PROFILES_DIR = Path(__file__).parent.parent / "profiles"
+PROFILES_DIR = Path(__file__).parent / "profiles"
 
 
 @dataclass

@@ -61,7 +61,7 @@ def main() -> None:
             _discover(joy)
         else:
             profile = load_profile(args.profile)
-            run(joy, profile)
+            run(joy, profile, args.profile)
     except KeyboardInterrupt:
         print("\nStopped.")
     finally:

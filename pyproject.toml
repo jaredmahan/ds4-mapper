@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
 [project]
 name = "ds4-mapper"
 version = "0.1.0"
@@ -7,11 +11,19 @@ dependencies = [
     "pynput",
     "rich",
     "prompt_toolkit",
-    "tomli-w",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
+
+[project.scripts]
+ds4-mapper = "ds4mapper.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["ds4mapper*"]
+
+[tool.setuptools.package-data]
+"ds4mapper" = ["profiles/*.toml"]
 
 [tool.ruff]
 line-length = 100
@@ -22,6 +34,3 @@ select = ["E", "F", "W", "I"]  # pycodestyle, pyflakes, isort
 
 [tool.ruff.format]
 quote-style = "double"
-
-[project.scripts]
-ds4-mapper = "ds4mapper.__main__:main"

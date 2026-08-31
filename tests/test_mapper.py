@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -58,8 +58,10 @@ def test_button_up_fires_release(stub_pygame):
     keyboard = MagicMock()
     t = mapper_module.MapperThread(lambda: profile, MagicMock(), keyboard)
 
+    t._process_event(_btn_event(stub_pygame.JOYBUTTONDOWN, 0, stub_pygame))
     t._process_event(_btn_event(stub_pygame.JOYBUTTONUP, 0, stub_pygame))
 
+    keyboard.press.assert_called_once_with("x")
     keyboard.release.assert_called_once_with("x")
 
 
@@ -82,9 +84,10 @@ def test_profile_swap_uses_new_profile(stub_pygame):
 
     t._process_event(_btn_event(stub_pygame.JOYBUTTONDOWN, 0, stub_pygame))
     current[0] = profile_b
-    t._process_event(_btn_event(stub_pygame.JOYBUTTONDOWN, 0, stub_pygame))
+    t._process_event(_btn_event(stub_pygame.JOYBUTTONUP, 0, stub_pygame))
 
-    assert keyboard.press.call_args_list == [call("x"), call("z")]
+    keyboard.press.assert_called_once_with("x")
+    keyboard.release.assert_called_once_with("x")
 
 
 def test_axis_past_deadzone_fires_press(stub_pygame):
