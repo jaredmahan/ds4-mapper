@@ -48,7 +48,7 @@ def _init_pygame() -> pygame.joystick.Joystick:
 # Inner layout: dpad(13) + gap(6) + touchpad(13) + gap(6) + face(13) = 51 chars.
 _ART_LINES: list[list[tuple[str, str]]] = [
     # shoulder bump nubs
-    [("dim", "          ╭──╮                                 ╭──╮          ")],
+    [("dim", "           ╭──╮                                 ╭──╮         ")],
     # L1/R1 stems with trigger labels
     [
         ("dim", "  L2 ──────"),

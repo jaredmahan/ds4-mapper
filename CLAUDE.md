@@ -17,7 +17,7 @@ ds4-mapper [--profile NAME] [--discover]
 | Path | Purpose |
 |------|---------|
 | `ds4mapper/__main__.py` | Entry point, splash screen, controller wait loop |
-| `ds4mapper/cli.py` | Main run loop; Live display + prompt_toolkit session |
+| `ds4mapper/cli.py` | Textual TUI app (`MapperApp`); in-place panel updates via `call_from_thread` |
 | `ds4mapper/mapper.py` | Button/axis → pynput key event dispatch |
 | `ds4mapper/profiles.py` | TOML profile loader; `PROFILES_DIR = Path(__file__).parent / "profiles"` |
 | `ds4mapper/profiles/default.toml` | Default profile (ships with the package) |
@@ -26,9 +26,9 @@ ds4-mapper [--profile NAME] [--discover]
 
 ## Architecture Notes
 
-- **Thread model:** `cli.py` runs `PromptSession.prompt()` on a daemon thread; main thread drives `rich.Live` at 30 fps. Never block the main thread with input.
+- **Thread model:** `MapperThread` runs on a background thread. The Textual event loop (asyncio, main thread) drives the pygame pump via `set_interval(1/30, ...)`. Widget updates from `on_event` use `call_from_thread()` — never call Textual widget methods directly from a background thread.
 - **Profile swap safety:** `_pressed_keys` dict stores the key that was pressed at press-time so release always uses the same key even after a profile switch. `_current = [Profile, stem]` list (mutable) allows atomic swap without a new variable.
-- **Shutdown order:** `stop()` → `join()` → `release_all()`. Do not call `release_all()` before the mapper thread exits.
+- **Shutdown order:** `stop()` → `join()` → `release_all()`. Do not call `release_all()` before the mapper thread exits. Textual calls `on_unmount()` automatically on exit.
 - **Profiles directory:** Lives inside the package (`ds4mapper/profiles/`) so it ships with both editable and non-editable installs. Declared as package-data in `pyproject.toml`.
 
 ## Splash Screen ASCII Art
@@ -66,5 +66,5 @@ pytest tests/ -v                # tests (needs xvfb-run on headless Linux)
 
 - No inline comments unless the WHY is non-obvious.
 - No inline style attributes (N/A here — no HTML/Lit templates, but keep Rich styling in `static` definitions).
-- `pygame-ce`, `pynput`, `rich`, `prompt_toolkit` are the four runtime deps. Don't add new ones without discussion.
+- `pygame-ce`, `pynput`, `rich`, `textual` are the four runtime deps. Don't add new ones without discussion.
 - Controller event polling uses `pygame.event.pump()` inside wait loops so SDL can detect newly connected devices.
