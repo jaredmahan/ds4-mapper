@@ -2,6 +2,7 @@ import threading
 import time
 from collections import deque
 
+import pygame
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
@@ -164,6 +165,8 @@ def run(joy: object, initial_profile: Profile, initial_stem: str = "default") ->
     try:
         with Live(refresh_per_second=30, screen=False) as live:
             while not _quit.is_set():
+                for event in pygame.event.get():
+                    mapper.feed(event)
                 with lock:
                     profile_snap = _current[0]
                     active_snap = set(active)
