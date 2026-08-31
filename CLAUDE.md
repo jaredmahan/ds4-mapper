@@ -50,6 +50,12 @@ pytest tests/ -v                # tests (needs xvfb-run on headless Linux)
 - GitHub Actions installs `xvfb` and runs `xvfb-run pytest tests/` so pynput gets an X display on Ubuntu.
 - Build system: `setuptools.build_meta` — the `setuptools.backends.legacy:build` form causes install failures on macOS.
 
+## Git Workflow
+
+- **Never commit directly to `main`.** All changes go on a feature branch and ship via a pull request.
+- Branch naming: `fix/<short-description>` or `feat/<short-description>`.
+- Use `gh pr create` to open the PR after pushing the branch.
+
 ## Coding Conventions
 
 - No inline comments unless the WHY is non-obvious.
