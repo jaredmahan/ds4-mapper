@@ -28,6 +28,7 @@ include = ["ds4mapper*"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+exclude = ["docs/"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]  # pycodestyle, pyflakes, isort
