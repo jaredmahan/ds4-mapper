@@ -6,10 +6,9 @@ import pygame
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
-from prompt_toolkit.patch_stdout import patch_stdout
 from rich.columns import Columns
+from rich.console import Console
 from rich.layout import Layout
-from rich.live import Live
 from rich.panel import Panel
 from rich.text import Text
 
@@ -17,6 +16,7 @@ from ds4mapper.mapper import MapperThread
 from ds4mapper.profiles import Profile, list_profiles, load_profile
 
 _RECENT_MAX = 5
+_console = Console()
 
 
 class _ProfileCompleter(Completer):
@@ -97,82 +97,78 @@ def run(joy: object, initial_profile: Profile, initial_stem: str = "default") ->
         history=InMemoryHistory(),
     )
 
+    def print_status() -> None:
+        with lock:
+            p = _current[0]
+            act = set(active)
+            rec = list(recent)
+        _console.print(_build_layout(p, controller_name, act, rec))
+
     def input_loop() -> None:
-        with patch_stdout():
-            while not _quit.is_set():
-                try:
-                    line = session.prompt("> ")
-                except (EOFError, KeyboardInterrupt):
-                    _quit.set()
-                    return
-                line = line.strip()
-                if not line:
-                    continue
-                parts = line.split()
-                cmd = parts[0].lower()
-                if cmd == "list":
-                    print(", ".join(list_profiles()) or "(none)")
-                elif cmd == "switch":
-                    if len(parts) < 2:
-                        print("usage: switch <name>")
-                    else:
-                        name = parts[1]
-                        try:
-                            p = load_profile(name)
-                            with lock:
-                                _current[0] = p
-                                _current[1] = name
-                            print(f"Switched to: {p.name}")
-                        except (
-                            FileNotFoundError,
-                            ValueError,
-                            KeyError,
-                            IndexError,
-                            TypeError,
-                        ) as exc:
-                            print(f"Error: {exc}")
-                elif cmd == "current":
-                    with lock:
-                        p = _current[0]
-                    print(f"Profile: {p.name} — {p.description}")
-                elif cmd == "reload":
-                    with lock:
-                        stem = _current[1]
+        print_status()
+        while not _quit.is_set():
+            try:
+                line = session.prompt("> ")
+            except (EOFError, KeyboardInterrupt):
+                _quit.set()
+                return
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split()
+            cmd = parts[0].lower()
+            if cmd == "list":
+                _console.print(", ".join(list_profiles()) or "(none)")
+            elif cmd == "switch":
+                if len(parts) < 2:
+                    _console.print("usage: switch <name>")
+                else:
+                    name = parts[1]
                     try:
-                        p = load_profile(stem)
+                        p = load_profile(name)
                         with lock:
                             _current[0] = p
-                        print(f"Reloaded: {p.name}")
-                    except (
-                        FileNotFoundError,
-                        ValueError,
-                        KeyError,
-                        IndexError,
-                        TypeError,
-                    ) as exc:
-                        print(f"Error: {exc}")
-                elif cmd in ("help", "?"):
-                    print("Commands: list  switch <name>  current  reload  help  quit")
-                elif cmd in ("quit", "exit"):
-                    _quit.set()
-                    return
-                else:
-                    print(f"Unknown command: {cmd!r}  (type 'help')")
+                            _current[1] = name
+                        _console.print(f"Switched to: [cyan bold]{p.name}[/]")
+                        print_status()
+                    except (FileNotFoundError, ValueError, KeyError, IndexError, TypeError) as exc:
+                        _console.print(f"[red]Error:[/] {exc}")
+            elif cmd == "current":
+                print_status()
+            elif cmd == "reload":
+                with lock:
+                    stem = _current[1]
+                try:
+                    p = load_profile(stem)
+                    with lock:
+                        _current[0] = p
+                    _console.print(f"Reloaded: [cyan bold]{p.name}[/]")
+                    print_status()
+                except (FileNotFoundError, ValueError, KeyError, IndexError, TypeError) as exc:
+                    _console.print(f"[red]Error:[/] {exc}")
+            elif cmd == "status":
+                print_status()
+            elif cmd in ("help", "?"):
+                _console.print(
+                    "Commands: [bold]list[/]  [bold]switch <name>[/]  "
+                    "[bold]current[/]  [bold]status[/]  [bold]reload[/]  "
+                    "[bold]help[/]  [bold]quit[/]"
+                )
+            elif cmd in ("quit", "exit"):
+                _quit.set()
+                return
+            else:
+                _console.print(f"Unknown command: [bold]{cmd!r}[/]  (type 'help')")
 
     input_thread = threading.Thread(target=input_loop, daemon=True)
     input_thread.start()
 
     try:
-        with Live(refresh_per_second=30, screen=False) as live:
-            while not _quit.is_set():
-                for event in pygame.event.get():
-                    mapper.feed(event)
-                with lock:
-                    profile_snap = _current[0]
-                    active_snap = set(active)
-                    recent_snap = list(recent)
-                live.update(_build_layout(profile_snap, controller_name, active_snap, recent_snap))
-                time.sleep(1 / 30)
+        # macOS requires pygame.event.get() on the main thread (AppKit constraint).
+        while not _quit.is_set():
+            for event in pygame.event.get():
+                mapper.feed(event)
+            time.sleep(1 / 30)
     finally:
         _quit.set()
         mapper.stop()
