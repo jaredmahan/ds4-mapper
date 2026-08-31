@@ -44,20 +44,92 @@ def _init_pygame() -> pygame.joystick.Joystick:
     return joy
 
 
-# Each line is a list of (style, text) segments; all render to exactly 61 chars.
-# Layout: dpad(13) + gap(6) + touchpad(13) + gap(6) + face-buttons(13) = 51 inner chars.
+# Each row is [(style, text), ...]; all must render to exactly 61 chars.
+# Inner layout: dpad(13) + gap(6) + touchpad(13) + gap(6) + face(13) = 51 chars.
 _ART_LINES: list[list[tuple[str, str]]] = [
+    # shoulder bump nubs
     [("dim", "          ╭──╮                                 ╭──╮          ")],
-    [("dim", "  L2 ──────"), ("cyan", "┤  ├"), ("dim", "──── L1                   R1 ────"), ("cyan", "┤  ├"), ("dim", "──── R2  ")],
+    # L1/R1 stems with trigger labels
+    [
+        ("dim", "  L2 ──────"),
+        ("cyan", "┤  ├"),
+        ("dim", "──── L1                   R1 ────"),
+        ("cyan", "┤  ├"),
+        ("dim", "──── R2  "),
+    ],
+    # body top border, ┴ where bump stems attach
     [("cyan", "  ╭────────┴──┴─────────────────────────────────┴──┴──────╮  ")],
-    [("cyan", "  │  "), ("white", "      ▲      "), ("cyan", "      "), ("dim", "╔═══════════╗"), ("cyan", "      "), ("yellow", "      △      "), ("cyan", "  │  ")],
-    [("cyan", "  │  "), ("white", "   ◄  ╋  ►   "), ("cyan", "  "), ("dim", "SHR"), ("cyan", " "), ("dim", "║ TOUCHPAD  ║"), ("cyan", " "), ("dim", "OPT"), ("cyan", "  "), ("cyan", "   "), ("magenta", "□"), ("cyan", "     "), ("red", "○"), ("cyan", "   "), ("cyan", "  │  ")],
-    [("cyan", "  │  "), ("white", "      ▼      "), ("cyan", "      "), ("dim", "╚═══════════╝"), ("cyan", "      "), ("blue", "      ✕      "), ("cyan", "  │  ")],
-    [("cyan", "  │  "), ("cyan", "                                                   "), ("cyan", "  │  ")],
-    [("cyan", "  │  "), ("dim", "       ╭───╮"), ("cyan", "             ⊛             "), ("dim", "╭───╮       "), ("cyan", "  │  ")],
-    [("cyan", "  │  "), ("dim", "       │ L │"), ("cyan", "                           "), ("dim", "│ R │       "), ("cyan", "  │  ")],
-    [("cyan", "  │  "), ("dim", "       ╰───╯"), ("cyan", "                           "), ("dim", "╰───╯       "), ("cyan", "  │  ")],
+    # row: dpad ↑  |  touchpad top  |  △ (triangle)
+    [
+        ("cyan", "  │  "),
+        ("white", "      ↑      "),
+        ("cyan", "      "),
+        ("dim", "╔═══════════╗"),
+        ("cyan", "      "),
+        ("yellow", "      △      "),
+        ("cyan", "  │  "),
+    ],
+    # row: ←+→  |  shr ║TOUCHPAD║ opt  |  □ ○
+    [
+        ("cyan", "  │  "),
+        ("white", "   ◄  +  ►   "),
+        ("cyan", "  "),
+        ("dim", "shr"),
+        ("cyan", " "),
+        ("dim", "║ TOUCHPAD  ║"),
+        ("cyan", " "),
+        ("dim", "opt"),
+        ("cyan", "  "),
+        ("cyan", "   "),
+        ("magenta", "□"),
+        ("cyan", "     "),
+        ("red", "○"),
+        ("cyan", "   "),
+        ("cyan", "  │  "),
+    ],
+    # row: dpad ↓  |  touchpad bottom  |  ✕ (cross)
+    [
+        ("cyan", "  │  "),
+        ("white", "      ↓      "),
+        ("cyan", "      "),
+        ("dim", "╚═══════════╝"),
+        ("cyan", "      "),
+        ("blue", "      ✕      "),
+        ("cyan", "  │  "),
+    ],
+    # spacer row
+    [
+        ("cyan", "  │  "),
+        ("cyan", "                                                   "),
+        ("cyan", "  │  "),
+    ],
+    # stick tops + ⊛ PS button
+    [
+        ("cyan", "  │  "),
+        ("dim", "       ╭───╮"),
+        ("cyan", "             ⊛             "),
+        ("dim", "╭───╮       "),
+        ("cyan", "  │  "),
+    ],
+    # stick labels (L3 / R3 when pressed)
+    [
+        ("cyan", "  │  "),
+        ("dim", "       │ L │"),
+        ("cyan", "                           "),
+        ("dim", "│ R │       "),
+        ("cyan", "  │  "),
+    ],
+    # stick bottoms
+    [
+        ("cyan", "  │  "),
+        ("dim", "       ╰───╯"),
+        ("cyan", "                           "),
+        ("dim", "╰───╯       "),
+        ("cyan", "  │  "),
+    ],
+    # body bottom with grip notches
     [("cyan", "  ╰──╮                                                 ╭──╯  ")],
+    # grip base
     [("cyan", "     ╰─────────────────────────────────────────────────╯     ")],
 ]
 

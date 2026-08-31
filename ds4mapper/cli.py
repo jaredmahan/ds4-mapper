@@ -79,6 +79,15 @@ def run(joy: object, initial_profile: Profile, initial_stem: str = "default") ->
         with lock:
             return _current[0]
 
+    controller_name = joy.get_name() if hasattr(joy, "get_name") else "Unknown"
+
+    def print_status() -> None:
+        with lock:
+            p = _current[0]
+            act = set(active)
+            rec = list(recent)
+        _console.print(_build_layout(p, controller_name, act, rec))
+
     def on_event(label: str, key_repr: str, pressed: bool) -> None:
         with lock:
             if pressed:
@@ -86,14 +95,7 @@ def run(joy: object, initial_profile: Profile, initial_stem: str = "default") ->
                 recent.appendleft(f"{label} → {key_repr}")
             else:
                 active.discard(label)
-            act = set(active)
-        if pressed:
-            held = "  ".join(f"[green]{a}[/]" for a in sorted(act)) or "[dim]—[/]"
-            _console.print(f"[green]▶[/] [bold]{label}[/] → {key_repr}   {held}")
-        else:
-            _console.print(f"[dim]◀ {label} → {key_repr}[/]")
-
-    controller_name = joy.get_name() if hasattr(joy, "get_name") else "Unknown"
+        print_status()
 
     mapper = MapperThread(get_profile, on_event)
     mapper.start()
@@ -102,13 +104,6 @@ def run(joy: object, initial_profile: Profile, initial_stem: str = "default") ->
         completer=_ProfileCompleter(),
         history=InMemoryHistory(),
     )
-
-    def print_status() -> None:
-        with lock:
-            p = _current[0]
-            act = set(active)
-            rec = list(recent)
-        _console.print(_build_layout(p, controller_name, act, rec))
 
     def input_loop() -> None:
         print_status()
