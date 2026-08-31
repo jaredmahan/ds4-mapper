@@ -33,10 +33,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pygame-ce pynput rich prompt_toolkit tomli-w
+        run: pip install pygame-ce pynput rich prompt_toolkit
 
       - name: Syntax check
-        run: python -m py_compile $(find . -name "*.py" -not -path "./.git/*" -not -path "./tests/*")
+        run: python -m py_compile $(find ds4mapper -name "*.py")
 
   test:
     runs-on: ubuntu-latest
@@ -48,7 +48,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pygame-ce pynput rich prompt_toolkit tomli-w pytest
+        run: pip install pygame-ce pynput rich prompt_toolkit pytest
+
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
 
       - name: Run tests
-        run: pytest tests/ -v
+        run: xvfb-run pytest tests/ -v

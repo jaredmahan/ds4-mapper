@@ -1,0 +1,26 @@
+name = "default"
+description = "Standard browser game layout"
+
+[buttons]
+0  = "x"
+1  = "z"
+2  = "s"
+3  = "a"
+4  = "v"
+6  = "enter"
+9  = "q"
+10 = "e"
+11 = "up"
+12 = "down"
+13 = "left"
+14 = "right"
+
+[axes]
+0 = ["f", "h"]
+1 = ["t", "g"]
+2 = ["j", "l"]
+3 = ["i", "k"]
+
+[triggers]
+4 = "tab"
+5 = "r"
