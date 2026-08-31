@@ -1,0 +1,38 @@
+{
+  "version": "0.2",
+  "ignorePaths": [
+    "docs/superpowers/**",
+    ".claude/**",
+    ".git/**"
+  ],
+  "words": [
+    "pygame",
+    "pynput",
+    "tomllib",
+    "tomli",
+    "pytest",
+    "setuptools",
+    "pyproject",
+    "pycodestyle",
+    "pyflakes",
+    "isort",
+    "stdlib",
+    "pathlib",
+    "dataclass",
+    "dataclasses",
+    "textwrap",
+    "setattr",
+    "isinstance",
+    "autouse",
+    "monkeypatch",
+    "repr",
+    "keypresses",
+    "deadzone",
+    "DEADZONE",
+    "JOYBUTTONDOWN",
+    "JOYBUTTONUP",
+    "JOYAXISMOTION",
+    "JOYHATMOTION",
+    "notakey"
+  ]
+}
