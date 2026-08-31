@@ -86,6 +86,12 @@ def run(joy: object, initial_profile: Profile, initial_stem: str = "default") ->
                 recent.appendleft(f"{label} → {key_repr}")
             else:
                 active.discard(label)
+            act = set(active)
+        if pressed:
+            held = "  ".join(f"[green]{a}[/]" for a in sorted(act)) or "[dim]—[/]"
+            _console.print(f"[green]▶[/] [bold]{label}[/] → {key_repr}   {held}")
+        else:
+            _console.print(f"[dim]◀ {label} → {key_repr}[/]")
 
     controller_name = joy.get_name() if hasattr(joy, "get_name") else "Unknown"
 
