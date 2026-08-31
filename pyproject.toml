@@ -22,3 +22,6 @@ select = ["E", "F", "W", "I"]  # pycodestyle, pyflakes, isort
 
 [tool.ruff.format]
 quote-style = "double"
+
+[project.scripts]
+ds4-mapper = "ds4mapper.__main__:main"
