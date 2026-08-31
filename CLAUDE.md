@@ -55,6 +55,10 @@ pytest tests/ -v                # tests (needs xvfb-run on headless Linux)
 - **Never commit directly to `main`.** All changes go on a feature branch and ship via a pull request.
 - Branch naming: `fix/<short-description>` or `feat/<short-description>`.
 - Use `gh pr create` to open the PR after pushing the branch.
+- **Issue tracking:** use GitHub Issues at https://github.com/jaredmahan/ds4-mapper/issues — not Jira.
+  - Open an issue before starting non-trivial work: `gh issue create --title "..." --body "..."`
+  - Reference the issue in the PR body and branch name where possible (e.g. `fix/42-garbled-output`)
+  - Close issues via PR body: `Closes #N`
 
 ## Coding Conventions
 
