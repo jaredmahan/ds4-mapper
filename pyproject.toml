@@ -1,0 +1,24 @@
+[project]
+name = "ds4-mapper"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "pygame-ce",
+    "pynput",
+    "rich",
+    "prompt_toolkit",
+    "tomli-w",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]  # pycodestyle, pyflakes, isort
+
+[tool.ruff.format]
+quote-style = "double"
