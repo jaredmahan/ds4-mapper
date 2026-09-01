@@ -9,3 +9,6 @@ __pycache__/
 .claude/plans/
 .claude/settings.local.json
 .claude/scheduled_tasks.json
+dist/
+build/
+*.egg-info/
