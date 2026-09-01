@@ -28,6 +28,15 @@ class MapperThread(threading.Thread):
         self._axis_active: dict[tuple[int, int], bool] = {}
         self._trigger_active: dict[int, bool] = {}
         self._pressed_keys: dict[str, Key | str] = {}
+        self._suspended = False
+
+    @property
+    def suspended(self) -> bool:
+        return self._suspended
+
+    @suspended.setter
+    def suspended(self, value: bool) -> None:
+        self._suspended = value
 
     def feed(self, event: object) -> None:
         """Called from the main thread to deliver a pygame event."""
@@ -60,10 +69,11 @@ class MapperThread(threading.Thread):
             key = profile.buttons.get(event.button)
             if key is None:
                 return
-            try:
-                self._keyboard.press(key)
-            except Exception as exc:  # noqa: BLE001
-                print(f"[mapper] press failed: {exc}", file=sys.stderr)
+            if not self._suspended:
+                try:
+                    self._keyboard.press(key)
+                except Exception as exc:  # noqa: BLE001
+                    print(f"[mapper] press failed: {exc}", file=sys.stderr)
             self._pressed_keys[f"btn:{event.button}"] = key
             self._on_event(f"button:{event.button}", repr(key), True)
 
@@ -72,10 +82,11 @@ class MapperThread(threading.Thread):
             key = self._pressed_keys.pop(slot, None)
             if key is None:
                 return
-            try:
-                self._keyboard.release(key)
-            except Exception as exc:  # noqa: BLE001
-                print(f"[mapper] release failed: {exc}", file=sys.stderr)
+            if not self._suspended:
+                try:
+                    self._keyboard.release(key)
+                except Exception as exc:  # noqa: BLE001
+                    print(f"[mapper] release failed: {exc}", file=sys.stderr)
             self._on_event(f"button:{event.button}", repr(key), False)
 
         elif event.type == pygame.JOYAXISMOTION:
@@ -89,18 +100,20 @@ class MapperThread(threading.Thread):
                 was = self._trigger_active.get(axis, False)
                 now = value > TRIGGER_DEADZONE
                 if now and not was:
-                    try:
-                        self._keyboard.press(key)
-                    except Exception as exc:  # noqa: BLE001
-                        print(f"[mapper] press failed: {exc}", file=sys.stderr)
+                    if not self._suspended:
+                        try:
+                            self._keyboard.press(key)
+                        except Exception as exc:  # noqa: BLE001
+                            print(f"[mapper] press failed: {exc}", file=sys.stderr)
                     self._pressed_keys[f"trigger:{axis}"] = key
                     self._on_event(f"trigger:{axis}", repr(key), True)
                 elif was and not now:
                     pressed_key = self._pressed_keys.pop(f"trigger:{axis}", key)
-                    try:
-                        self._keyboard.release(pressed_key)
-                    except Exception as exc:  # noqa: BLE001
-                        print(f"[mapper] release failed: {exc}", file=sys.stderr)
+                    if not self._suspended:
+                        try:
+                            self._keyboard.release(pressed_key)
+                        except Exception as exc:  # noqa: BLE001
+                            print(f"[mapper] release failed: {exc}", file=sys.stderr)
                     self._on_event(f"trigger:{axis}", repr(pressed_key), False)
                 self._trigger_active[axis] = now
 
@@ -112,17 +125,19 @@ class MapperThread(threading.Thread):
         was = self._axis_active.get(key_id, False)
         label = f"axis:{axis}:{'+' if direction > 0 else '-'}"
         if is_active and not was:
-            try:
-                self._keyboard.press(key)
-            except Exception as exc:  # noqa: BLE001
-                print(f"[mapper] press failed: {exc}", file=sys.stderr)
+            if not self._suspended:
+                try:
+                    self._keyboard.press(key)
+                except Exception as exc:  # noqa: BLE001
+                    print(f"[mapper] press failed: {exc}", file=sys.stderr)
             self._pressed_keys[f"axis:{axis}:{direction}"] = key
             self._on_event(label, repr(key), True)
         elif was and not is_active:
             pressed_key = self._pressed_keys.pop(f"axis:{axis}:{direction}", key)
-            try:
-                self._keyboard.release(pressed_key)
-            except Exception as exc:  # noqa: BLE001
-                print(f"[mapper] release failed: {exc}", file=sys.stderr)
+            if not self._suspended:
+                try:
+                    self._keyboard.release(pressed_key)
+                except Exception as exc:  # noqa: BLE001
+                    print(f"[mapper] release failed: {exc}", file=sys.stderr)
             self._on_event(label, repr(pressed_key), False)
         self._axis_active[key_id] = is_active
