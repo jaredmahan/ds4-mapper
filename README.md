@@ -11,7 +11,17 @@ Maps a DualShock 4 controller to keyboard inputs system-wide, so you can play br
 
 ## Install
 
+From PyPI:
+
 ```bash
+pip install ds4-mapper
+```
+
+Or from source (development mode):
+
+```bash
+git clone https://github.com/jaredmahan/ds4-mapper.git
+cd ds4-mapper
 pip install -e ".[dev]"
 ```
 
@@ -54,8 +64,31 @@ Once the mapper is running, type commands at the `>` prompt:
 | `switch <name>` | Load a profile (Tab-completes) |
 | `current` | Show the active profile name |
 | `reload` | Reload the current profile from disk |
+| `view [<name>]` | Show button/axis/trigger mappings for a profile |
+| `edit [<name>]` | Open the profile editor for an existing profile |
+| `new <name>` | Create a new profile in the editor |
 | `help` | Show command list |
 | `quit` / `exit` | Stop |
+
+## Profile Editor
+
+`edit` and `new` open an interactive editor screen where you can map controller inputs to keyboard keys:
+
+1. **Press a DS4 button, stick, or trigger** — the editor enters *waiting* mode and prompts for a key.
+2. **Press the keyboard key** you want it mapped to — the mapping is recorded.
+3. Repeat for each input you want to map.
+
+You can also type commands in the editor's input field:
+
+| Command | Effect |
+|---------|--------|
+| `save [stem]` | Save to disk (optional custom filename) |
+| `delete <input>` | Remove a mapping (e.g. `delete Cross`) |
+| `name <text>` | Set the profile display name |
+| `desc <text>` | Set the profile description |
+| `cancel` | Discard changes and return to the main screen |
+
+Keyboard injection is suspended while the editor is open so controller inputs don't fire game actions.
 
 ## Profiles
 
@@ -92,4 +125,11 @@ description = "Standard browser game layout"
 
 Special key names: `enter`, `tab`, `up`, `down`, `left`, `right`, `space`, `esc`, `shift`, `ctrl`, `alt`. Single characters are used directly.
 
-Copy `ds4mapper/profiles/default.toml` to create a new profile, then `switch <name>` to load it without restarting.
+Profiles can be created or edited from the CLI with `new` and `edit`, or by copying and editing TOML files directly.
+
+## Publishing to PyPI
+
+This project uses [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) via GitHub Actions. To release a new version:
+
+1. Bump `version` in `pyproject.toml`.
+2. Create a GitHub release — the `publish.yml` workflow builds and uploads the distribution automatically.

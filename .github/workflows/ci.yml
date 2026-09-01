@@ -33,7 +33,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pygame-ce pynput rich prompt_toolkit
+        run: pip install pygame-ce pynput rich textual
 
       - name: Syntax check
         run: python -m py_compile $(find ds4mapper -name "*.py")
@@ -48,7 +48,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install pygame-ce pynput rich prompt_toolkit pytest
+        run: pip install pygame-ce pynput rich textual pytest
 
       - name: Install Xvfb
         run: sudo apt-get install -y xvfb
