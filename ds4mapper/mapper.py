@@ -1,6 +1,6 @@
+import queue
 import sys
 import threading
-import time
 from collections.abc import Callable
 
 import pygame
@@ -24,9 +24,14 @@ class MapperThread(threading.Thread):
         self._on_event = on_event
         self._keyboard = keyboard or Controller()
         self._stop_event = threading.Event()
+        self._event_queue: queue.Queue = queue.Queue()
         self._axis_active: dict[tuple[int, int], bool] = {}
         self._trigger_active: dict[int, bool] = {}
         self._pressed_keys: dict[str, Key | str] = {}
+
+    def feed(self, event: object) -> None:
+        """Called from the main thread to deliver a pygame event."""
+        self._event_queue.put(event)
 
     def stop(self) -> None:
         self._stop_event.set()
@@ -40,14 +45,13 @@ class MapperThread(threading.Thread):
                 pass
         self._pressed_keys.clear()
 
-    # NOTE: SDL2/Cocoa on macOS requires event pumping from the main thread.
-    # If the mapper silently fails on macOS, move pygame.event.get() to the
-    # main thread and pass events to MapperThread via a queue.
     def run(self) -> None:
         while not self._stop_event.is_set():
-            for event in pygame.event.get():
-                self._process_event(event)
-            time.sleep(0.008)
+            try:
+                event = self._event_queue.get(timeout=0.016)
+            except queue.Empty:
+                continue
+            self._process_event(event)
 
     def _process_event(self, event: object) -> None:
         profile = self._get_profile()
