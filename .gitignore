@@ -5,3 +5,7 @@ __pycache__/
 *.egg-info/
 .DS_Store
 .venv/
+.claude/worktrees/
+.claude/plans/
+.claude/settings.local.json
+.claude/scheduled_tasks.json
