@@ -14,7 +14,14 @@ Maps a DualShock 4 controller to keyboard inputs system-wide, so you can play br
 From PyPI:
 
 ```bash
-pip install ds4-mapper
+pip3 install ds4-mapper
+```
+
+**macOS note:** If you see `zsh: command not found: ds4-mapper` after installing, pip placed the script outside your PATH. Fix it once:
+
+```bash
+echo 'export PATH="$HOME/Library/Python/3.11/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
 Or from source (development mode):
@@ -22,7 +29,7 @@ Or from source (development mode):
 ```bash
 git clone https://github.com/jaredmahan/ds4-mapper.git
 cd ds4-mapper
-pip install -e ".[dev]"
+pip3 install -e ".[dev]"
 ```
 
 ## Usage
@@ -127,9 +134,13 @@ Special key names: `enter`, `tab`, `up`, `down`, `left`, `right`, `space`, `esc`
 
 Profiles can be created or edited from the CLI with `new` and `edit`, or by copying and editing TOML files directly.
 
-## Publishing to PyPI
+## Releasing a new version
 
-This project uses [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) via GitHub Actions. To release a new version:
-
-1. Bump `version` in `pyproject.toml`.
-2. Create a GitHub release — the `publish.yml` workflow builds and uploads the distribution automatically.
+1. Bump `version` in `pyproject.toml` and commit.
+2. Update the tag and create a GitHub release:
+   ```bash
+   git tag v<version>
+   git push origin v<version>
+   gh release create v<version> --title "v<version>" --notes "..."
+   ```
+3. The `publish.yml` workflow builds with `python -m build` and uploads to PyPI with `twine` automatically.
