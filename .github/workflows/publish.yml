@@ -7,8 +7,6 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: none
     steps:
       - uses: actions/checkout@v4
 
@@ -16,13 +14,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build distribution
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          pip install build
+          pip install build twine
           python -m build
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          attestations: false
+          twine upload dist/*
