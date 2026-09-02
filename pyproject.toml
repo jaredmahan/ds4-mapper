@@ -1,17 +1,40 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ds4-mapper"
 version = "0.1.0"
+description = "Map a DualShock 4 controller to keyboard inputs with a live TUI"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Jared Mahan" }]
 requires-python = ">=3.11"
+keywords = ["ds4", "dualshock4", "controller", "keyboard", "mapping", "gamepad", "pygame"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment",
+    "Topic :: Utilities",
+]
 dependencies = [
     "pygame-ce",
     "pynput",
     "rich",
     "textual",
 ]
+
+[project.urls]
+Homepage = "https://github.com/jaredmahan/ds4-mapper"
+Repository = "https://github.com/jaredmahan/ds4-mapper"
+Issues = "https://github.com/jaredmahan/ds4-mapper/issues"
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
